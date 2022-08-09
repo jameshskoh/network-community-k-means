@@ -68,7 +68,7 @@ public class SAHelper {
     }
 
     // calculate modularity given set information
-    public static double calcMod(
+    public static double calcEnergy(
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets,
             double[][] expWeight) {
         double sum = 0;
@@ -84,6 +84,6 @@ public class SAHelper {
             }
         }
 
-        return sum;
+        return -sum;
     }
 }

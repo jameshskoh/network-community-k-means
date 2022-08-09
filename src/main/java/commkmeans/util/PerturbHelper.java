@@ -6,7 +6,7 @@ public class PerturbHelper {
     public static Map<Integer, Set<Integer>> perturb(
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets,
             double[][] lambda, Random random) {
-        int result = random.nextInt(0, 3);
+        int result = random.nextInt(3);
 
         if (result == 0) {
             return doNothing(commSets);
