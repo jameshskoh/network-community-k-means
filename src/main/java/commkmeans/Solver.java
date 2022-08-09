@@ -11,7 +11,7 @@ import java.util.Random;
 import java.util.Set;
 
 public class Solver {
-    private Random random;
+    private final Random random;
     private final Parameters param;
     private final Map<Integer, Set<Integer>> neighborSets;
     private final int numVertex;
@@ -39,42 +39,55 @@ public class Solver {
         expWeight = InitHelper.calcExpWeight(nodeDegrees, numEdge);
 
         this.param = param;
+
+        if (param.seed == -1) {
+            random = new Random();
+        } else {
+            random = new Random(param.seed);
+        }
     }
 
     public Solution solve() {
         Solution s = new Solution();
 
-        int N = random.nextInt(param.N_min, param.N_max);
+        int N = random.nextInt(param.N_max - param.N_min + 1) + param.N_min;
 
         Map<Integer, Set<Integer>> randomSets = SAHelper.calcRandomSets(N, numVertex, random);
         randomSets = SAHelper.calcRecenter(randomSets, lambda);
         s.optCommSets = randomSets;
-        s.optObj = SAHelper.calcMod(randomSets, neighborSets, expWeight);
+        s.optObj = SAHelper.calcEnergy(randomSets, neighborSets, expWeight);
 
         Map<Integer, Set<Integer>> currCommSets = randomSets;
-        double currObj = Double.NEGATIVE_INFINITY;
+        double currObj = s.optObj;
 
-        double temp = 1000.0;
-        // #TODO
-        while (temp > 1.0) {
-            currCommSets = PerturbHelper.perturb(currCommSets, neighborSets, lambda, random);
-            currObj = SAHelper.calcMod(currCommSets, neighborSets, expWeight);
+        double T = param.T_max;
+        while (T >= param.T_min) {
+            int iter = 0;
 
-            if (currObj <= s.optObj) {
-                s.optCommSets = currCommSets;
-                s.optObj = currObj;
-            } else {
-                double prob = random.nextDouble(0.0, 1.0);
+            while (iter < param.R) {
+                currCommSets = PerturbHelper.perturb(currCommSets, neighborSets, lambda, random);
+                currObj = SAHelper.calcEnergy(currCommSets, neighborSets, expWeight);
 
-                // #TODO
-                if (prob != 0.5) {
-
+                if (currObj <= s.optObj) {
+                    s.optCommSets = currCommSets;
+                    s.optObj = currObj;
                 } else {
-                    currCommSets = s.optCommSets;
+                    double prob = random.nextDouble();
+
+                    double eval = Math.exp((currObj - s.optObj) / T);
+
+                    // #TODO
+                    if (!(prob < eval)) {
+                        // bad luck, revert to previous solution
+                        currCommSets = s.optCommSets;
+                        currObj = s.optObj;
+                    }
                 }
+
+                iter++;
             }
 
-            temp = temp / 2.0;
+            T = T * param.alpha;
         }
 
         return s;
