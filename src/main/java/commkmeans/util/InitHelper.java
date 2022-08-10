@@ -53,7 +53,7 @@ public class InitHelper {
             CommonOps_DDRM.solve(matA, vecI, vecX);
 
             for (int x = 0; x < numVert; x++) {
-                passTime[x][y] = vecX.get(x, 1);
+                passTime[x][y] = vecX.get(x, 0);
             }
         }
 
