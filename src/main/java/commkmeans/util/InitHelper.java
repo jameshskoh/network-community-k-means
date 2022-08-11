@@ -43,6 +43,11 @@ public class InitHelper {
         double[][] passTime = new double[numVert][numVert];
 
         for (int y = 0; y < numVert; y++) {
+            if (y % 25 == 0) {
+                String msg = String.format("Computed %d instances.", y);
+                System.out.println(msg);
+            }
+
             DMatrixRMaj matA = calcAbsorbProbs(negPassProbs, y);
 
             DMatrixRMaj vecX = new DMatrixRMaj(numVert, 1);
@@ -53,6 +58,13 @@ public class InitHelper {
             CommonOps_DDRM.solve(matA, vecI, vecX);
 
             for (int x = 0; x < numVert; x++) {
+                double value = vecX.get(x, 0);
+                // if (value < 1.0) System.out.println(value);
+
+                if (Double.isNaN(value)) System.out.println("OMG " + x + ", " + y + " HIT NAN!");
+
+                if (value == Double.POSITIVE_INFINITY || value == Double.NEGATIVE_INFINITY) System.out.println("OMG " + x + ", " + y + " INFINITY!");
+
                 passTime[x][y] = vecX.get(x, 0);
             }
         }
