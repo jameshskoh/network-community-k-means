@@ -19,12 +19,11 @@ public class App {
         double T_min = 0.045;
         int N_max = g.getNumVertex() / 3;
         int N_min = 2;
-        double alpha = 0.93;
+        double alpha = 0.95;
         int R = 50;
-        int seed = 0;
 
         Parameters param = new Parameters(
-                T_max, T_min, N_max, N_min, alpha, R, seed);
+                T_max, T_min, N_max, N_min, alpha, R);
 
         Solver sv = new Solver(g, param);
         Solution s = sv.solve();
