@@ -4,21 +4,33 @@ import java.util.*;
 
 public class PerturbHelper {
     public static Map<Integer, Set<Integer>> perturb(
-            Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets,
-            double[][] lambda, Random random) {
+            Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets, double[][] lambda,
+            Parameters param, Random random) {
         int result = random.nextInt(3);
 
         if (result == 0) {
-            return doNothing(commSets);
+            return keepCenter(commSets, neighborSets, lambda);
         } else if (result == 1) {
+            if (commSets.size() == param.N_min) {
+                return keepCenter(commSets, neighborSets, lambda);
+            }
+
             return deleteCenter(commSets, neighborSets, lambda);
         } else {
+            if (commSets.size() == param.N_max) {
+                return keepCenter(commSets, neighborSets, lambda);
+            }
+
             return addCenter(commSets, neighborSets, lambda);
         }
     }
 
-    public static Map<Integer, Set<Integer>> doNothing(Map<Integer, Set<Integer>> commSets) {
-        return commSets;
+    public static Map<Integer, Set<Integer>> keepCenter(
+            Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets,
+            double[][] lambda) {
+        List<Integer> centers = new ArrayList<>(commSets.keySet());
+
+        return clusterNodes(centers, lambda);
     }
 
     public static Map<Integer, Set<Integer>> deleteCenter(
@@ -45,6 +57,8 @@ public class PerturbHelper {
         int newC = 0;
 
         for (int node : commSets.get(weakestComm)) {
+            if (node == weakestComm) continue;
+
             double diss = lambda[node][weakestComm];
 
             if (diss < minDiss) {
@@ -57,15 +71,17 @@ public class PerturbHelper {
         centers.add(newC);
 
 
-        for (int c : commSets.keySet()) {
-            centers.add(c);
-        }
+        centers.addAll(commSets.keySet());
 
         return clusterNodes(centers, lambda);
     }
 
     private static int calcWeakestComm(
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets) {
+        if (commSets.isEmpty()) {
+            throw new IllegalArgumentException("This is crazy.");
+        }
+
         int weakest = 0;
         double minStr = Double.POSITIVE_INFINITY;
 
@@ -129,6 +145,9 @@ public class PerturbHelper {
             int center = clusterNodesIter(centers, node, lambda);
 
             Set<Integer> set = commSets.get(center);
+
+            if (set == null) System.out.println(center);
+
             set.add(node);
         }
 
@@ -138,7 +157,12 @@ public class PerturbHelper {
     private static int clusterNodesIter (
             List<Integer> centers, int node, double[][] lambda) {
         double minDiss = Double.POSITIVE_INFINITY;
-        int minCenter = 0;
+        int minCenter = -1;
+
+        if (centers.isEmpty()) {
+            String msg = String.format("Center set cannot be empty!");
+            throw new IllegalArgumentException(msg);
+        }
 
         for (int c : centers) {
             double diss = lambda[node][c];
