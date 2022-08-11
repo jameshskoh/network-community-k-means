@@ -4,7 +4,8 @@ import java.util.*;
 
 public class SAHelper {
     // generate random sets
-    public static Map<Integer, Set<Integer>> calcRandomSets(int numSet, int numVert, Random random) {
+    public static Map<Integer, Set<Integer>> calcRandomSets(
+            int numSet, int numVert, Random random) {
         List<Integer> candidates = new ArrayList<>();
 
         Map<Integer, Set<Integer>> randomSets = new HashMap<>();
@@ -70,7 +71,7 @@ public class SAHelper {
     // calculate modularity given set information
     public static double calcEnergy(
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets,
-            double[][] expWeight) {
+            double[][] expWeight, int numEdges) {
         double sum = 0;
 
         for (Set<Integer> commSet : commSets.values()) {
@@ -84,6 +85,6 @@ public class SAHelper {
             }
         }
 
-        return -sum;
+        return -sum / (2.0 * numEdges);
     }
 }
