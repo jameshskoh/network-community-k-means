@@ -65,7 +65,8 @@ public class Solver {
             int iter = 0;
 
             while (iter < param.R) {
-                currCommSets = PerturbHelper.perturb(currCommSets, neighborSets, lambda, random);
+                currCommSets = PerturbHelper.perturb(currCommSets, neighborSets, lambda, param, random);
+                currCommSets = SAHelper.calcRecenter(currCommSets, lambda);
                 currObj = SAHelper.calcEnergy(currCommSets, neighborSets, expWeight, numEdge);
 
                 if (currObj <= s.optObj) {

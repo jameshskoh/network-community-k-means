@@ -33,8 +33,13 @@ public class SAHelper {
     public static Map<Integer, Set<Integer>> calcRecenter(
             Map<Integer, Set<Integer>> commSets, double[][] lambda) {
         Map<Integer, Integer> oldToNew = new HashMap<>();
+        Map<Integer, Set<Integer>> newCommSets = new HashMap<>();
 
         for (int c : commSets.keySet()) {
+            if (commSets.get(c).size() == 1) {
+                oldToNew.put(c, c);
+            }
+
             double minDiss = Double.POSITIVE_INFINITY;
             int newC = 0;
 
@@ -61,11 +66,10 @@ public class SAHelper {
 
             Set<Integer> commSet = commSets.get(c);
 
-            commSets.put(newC, commSet);
-            commSets.remove(c);
+            newCommSets.put(newC, commSet);
         }
 
-        return commSets;
+        return newCommSets;
     }
 
     // calculate modularity given set information
