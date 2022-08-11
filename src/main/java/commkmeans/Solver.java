@@ -27,16 +27,29 @@ public class Solver {
     private final double[][] expWeight;
 
     public Solver(Graph g, Parameters param) {
+        System.out.println("Initializing solver...");
+
         neighborSets = g.exportGraph();
         numVertex = g.getNumVertex();
         numEdge = g.getNumEdge();
 
+        System.out.println("Initializing parameters...");
+
         // For lambda
         nodeDegrees = InitHelper.calcNodeDegrees(neighborSets);
+        System.out.println("Node degree: done");
+
         negPassProbs = InitHelper.calcNegPassProbs(neighborSets, nodeDegrees);
+        System.out.println("Passage probability: done");
+
         passTime = InitHelper.calcPassTime(negPassProbs);
+        System.out.println("First passage time: done");
+
         lambda = InitHelper.calcLambda(passTime);
+        System.out.println("Dissimilarity index: done");
+
         expWeight = InitHelper.calcExpWeight(nodeDegrees, numEdge);
+        System.out.println("Expected weight: done");
 
         this.param = param;
 
@@ -48,6 +61,8 @@ public class Solver {
     }
 
     public Solution solve() {
+        System.out.println("Initializing solving procedure...");
+
         Solution s = new Solution();
 
         int N = random.nextInt(param.N_max - param.N_min + 1) + param.N_min;
@@ -62,6 +77,9 @@ public class Solver {
 
         double T = param.T_max;
         while (T >= param.T_min) {
+            String msg = String.format("Current temperature: %.5f", T);
+            System.out.println(msg);
+
             int iter = 0;
 
             while (iter < param.R) {
@@ -90,6 +108,8 @@ public class Solver {
 
             T = T * param.alpha;
         }
+
+        System.out.println("\nDone!\n");
 
         return s;
     }
