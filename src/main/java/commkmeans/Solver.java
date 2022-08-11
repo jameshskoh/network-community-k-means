@@ -55,7 +55,7 @@ public class Solver {
         Map<Integer, Set<Integer>> randomSets = SAHelper.calcRandomSets(N, numVertex, random);
         randomSets = SAHelper.calcRecenter(randomSets, lambda);
         s.optCommSets = randomSets;
-        s.optObj = SAHelper.calcEnergy(randomSets, neighborSets, expWeight);
+        s.optObj = SAHelper.calcEnergy(randomSets, neighborSets, expWeight, numEdge);
 
         Map<Integer, Set<Integer>> currCommSets = randomSets;
         double currObj = s.optObj;
@@ -66,7 +66,7 @@ public class Solver {
 
             while (iter < param.R) {
                 currCommSets = PerturbHelper.perturb(currCommSets, neighborSets, lambda, random);
-                currObj = SAHelper.calcEnergy(currCommSets, neighborSets, expWeight);
+                currObj = SAHelper.calcEnergy(currCommSets, neighborSets, expWeight, numEdge);
 
                 if (currObj <= s.optObj) {
                     s.optCommSets = currCommSets;
