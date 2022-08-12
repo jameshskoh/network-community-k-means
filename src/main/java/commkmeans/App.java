@@ -9,18 +9,18 @@ public class App {
         Graph g = new Graph();
 
         try {
-            GraphLoader.loadGraph(g, "data/dolphins.edge");
+            GraphLoader.loadGraph(g, "data/facebook_ucsd_500_main.edge");
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
 
         double T_max = 0.2;
-        double T_min = 0.045;
+        double T_min = 0.001;
         int N_max = g.getNumVertex() / 3;
         int N_min = 2;
-        double alpha = 0.95;
-        int R = 50;
+        double alpha = 0.99;
+        int R = 35;
 
         Parameters param = new Parameters(
                 T_max, T_min, N_max, N_min, alpha, R);
