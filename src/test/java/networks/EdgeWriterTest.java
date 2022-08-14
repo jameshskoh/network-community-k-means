@@ -8,12 +8,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class EdgeWriterTest {
     @Test
     void write_shouldWriteToCorrectFileWithCorrectOrder() {
-        String testFileName = "src/test/resources/data/write_test.edge";
+        String testFileName = "datatest/write_test.edge";
 
         Map<Integer, Set<Integer>> neighborSets = new HashMap<>();
         neighborSets.put(0, Stream.of(3, 5, 10, 12).collect(Collectors.toSet()));

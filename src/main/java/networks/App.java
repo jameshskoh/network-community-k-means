@@ -12,8 +12,8 @@ public class App {
     public static void main(String[] args) {
         Graph g = new Graph();
 
-        String inputFileName = "data/facebook_ucsd.edge";
-        String outputFileName = "src/main/resources/data/facebook_ucsd_main.edge";
+        String inputFileName = "data/facebook_ucsd_8000.edge";
+        String outputFileName = "data/facebook_ucsd_8000_main.edge";
 
         try {
             GraphLoader.loadGraph(g, inputFileName);

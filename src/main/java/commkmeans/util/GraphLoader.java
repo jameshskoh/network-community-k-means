@@ -4,7 +4,6 @@ import commkmeans.graph.Graph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
@@ -14,13 +13,7 @@ public class GraphLoader {
         Set<Integer> seen = new HashSet<>();
         Scanner sc;
 
-        URL temp = GraphLoader.class.getClassLoader().getResource(fileName);
-
-        if (temp == null) {
-            throw new FileNotFoundException(fileName);
-        }
-
-        File file = new File(temp.getPath());
+        File file = new File(fileName);
 
         sc = new Scanner(file);
 
