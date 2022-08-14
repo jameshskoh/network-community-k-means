@@ -3,7 +3,8 @@ package commkmeans.util;
 import org.junit.jupiter.api.Test;
 
 import static commkmeans.util.Constants.EPSILON;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ParametersTest {
     @Test
