@@ -1,6 +1,5 @@
 package commkmeans.util;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -11,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static commkmeans.util.Constants.EPSILON;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InitHelperTest {
     static Stream<Arguments> values() {
@@ -105,6 +104,16 @@ class InitHelperTest {
             Map<Integer, Set<Integer>> neighborsSet, int[] nodeDegrees,
             double[][] negPassProbs, double[][] passTime,
             double[][] lambda, double[][] weight, int numEdges) {
+        int numVert = neighborsSet.size();
+
+        double[] vecSingular = new double[numVert];
+
+        for (int i = 0; i < numVert; i++) {
+            vecSingular[i] = 1.0;
+        }
+
+        InitHelper.vecSingular = vecSingular;
+
         int[] myNodeDegrees = InitHelper.calcNodeDegrees(neighborsSet);
         double[][] myNegPassProbs = InitHelper.calcNegPassProbs(neighborsSet, myNodeDegrees);
         double[][] myPassTime = InitHelper.calcPassTime(myNegPassProbs);
@@ -122,6 +131,15 @@ class InitHelperTest {
             Map<Integer, Set<Integer>> neighborsSet, int[] nodeDegrees,
             double[][] negPassProbs, double[][] passTime,
             double[][] lambda, double[][] weight, int numEdges) {
+        int numVert = neighborsSet.size();
+
+        double[] vecSingular = new double[numVert];
+
+        for (int i = 0; i < numVert; i++) {
+            vecSingular[i] = 1.0;
+        }
+
+        InitHelper.vecSingular = vecSingular;
         int[] myNodeDegrees = InitHelper.calcNodeDegrees(neighborsSet);
         double[][] myNegPassProbs = InitHelper.calcNegPassProbs(neighborsSet, myNodeDegrees);
         double[][] myPassTime = InitHelper.calcPassTime(myNegPassProbs);

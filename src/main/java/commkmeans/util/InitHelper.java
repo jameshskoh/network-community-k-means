@@ -1,10 +1,17 @@
 package commkmeans.util;
 
-import java.util.*;
+import no.uib.cipr.matrix.DenseMatrix;
+import no.uib.cipr.matrix.DenseVector;
+import no.uib.cipr.matrix.Matrix;
+import no.uib.cipr.matrix.Vector;
 
-import org.ejml.data.DMatrixRMaj;
-import org.ejml.dense.row.CommonOps_DDRM;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.IntStream;
+
 public class InitHelper {
+    public static double[] vecSingular;
+
     public static int[] calcNodeDegrees(Map<Integer, Set<Integer>> neighborsSet) {
         int[] nodeDegrees = new int[neighborsSet.size()];
 
@@ -36,46 +43,44 @@ public class InitHelper {
         return negPassProbs;
     }
 
-    // use EJML to calculate t
+    // Solve system of equations with MTJ
     public static double[][] calcPassTime(double[][] negPassProbs) {
         int numVert = negPassProbs.length;
 
         double[][] passTime = new double[numVert][numVert];
 
-        for (int y = 0; y < numVert; y++) {
-            if (y % 25 == 0) {
-                String msg = String.format("Computed %d instances.", y);
-                System.out.println(msg);
-            }
+        IntStream dests = IntStream.range(0, numVert);
 
-            DMatrixRMaj matA = calcAbsorbProbs(negPassProbs, y);
+        dests.parallel().forEach(y -> {
+            String msg = String.format("Running instance %d.", y);
+            System.out.println(msg);
 
-            DMatrixRMaj vecX = new DMatrixRMaj(numVert, 1);
+            Matrix matA = calcAbsorbProbs(negPassProbs, y);
+            Vector vecX = new DenseVector(numVert);
+            Vector vecI = new DenseVector(vecSingular);
 
-            DMatrixRMaj vecI = new DMatrixRMaj(numVert, 1);
-            vecI.fill(1.0);
-
-            CommonOps_DDRM.solve(matA, vecI, vecX);
+            matA.solve(vecI, vecX);
 
             for (int x = 0; x < numVert; x++) {
-                double value = vecX.get(x, 0);
+                double value = vecX.get(x);
                 // if (value < 1.0) System.out.println(value);
 
                 if (Double.isNaN(value)) System.out.println("OMG " + x + ", " + y + " HIT NAN!");
 
-                if (value == Double.POSITIVE_INFINITY || value == Double.NEGATIVE_INFINITY) System.out.println("OMG " + x + ", " + y + " INFINITY!");
+                if (value == Double.POSITIVE_INFINITY || value == Double.NEGATIVE_INFINITY)
+                    System.out.println("OMG " + x + ", " + y + " INFINITY!");
 
-                passTime[x][y] = vecX.get(x, 0);
+                passTime[x][y] = vecX.get(x);
             }
-        }
+        });
 
         return passTime;
     }
 
-    private static DMatrixRMaj calcAbsorbProbs(double[][] negPassProbs, int y) {
+    private static DenseMatrix calcAbsorbProbs(double[][] negPassProbs, int y) {
         int numVert = negPassProbs.length;
 
-        DMatrixRMaj absorbProb = new DMatrixRMaj(negPassProbs);
+        DenseMatrix absorbProb = new DenseMatrix(negPassProbs);
 
         // set column y to 0
         for (int i = 0; i < numVert; i++) {
