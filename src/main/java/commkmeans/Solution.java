@@ -30,7 +30,7 @@ public class Solution {
                 String msg4 = String.format("%d\t", node);
                 System.out.print(msg4);
 
-                if (count % 6 == 0) System.out.println();
+                if (count % 10 == 0) System.out.println();
 
                 count++;
             }
@@ -39,5 +39,7 @@ public class Solution {
 
             commCount++;
         }
+
+        System.out.println(msg);
     }
 }
