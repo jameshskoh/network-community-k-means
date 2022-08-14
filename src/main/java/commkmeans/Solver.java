@@ -42,6 +42,12 @@ public class Solver {
         negPassProbs = InitHelper.calcNegPassProbs(neighborSets, nodeDegrees);
         System.out.println("Passage probability: done");
 
+        // Initialize InitHelper vecUnity, not the best practice, but saves time
+        // Only needs to init once for each graph, since all b in Ax=b are the same size and same value
+        double[] vecUnity = new double[numVertex];
+        for (int i = 0; i < numVertex; i++) vecUnity[i] = 1.0;
+        InitHelper.vecUnity = vecUnity;
+
         passTime = InitHelper.calcPassTime(negPassProbs);
         System.out.println("First passage time: done");
 

@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 public class InitHelper {
-    public static double[] vecSingular;
+    public static double[] vecUnity;
 
     public static int[] calcNodeDegrees(Map<Integer, Set<Integer>> neighborsSet) {
         int[] nodeDegrees = new int[neighborsSet.size()];
@@ -57,7 +57,7 @@ public class InitHelper {
 
             Matrix matA = calcAbsorbProbs(negPassProbs, y);
             Vector vecX = new DenseVector(numVert);
-            Vector vecI = new DenseVector(vecSingular);
+            Vector vecI = new DenseVector(vecUnity);
 
             matA.solve(vecI, vecX);
 

@@ -106,13 +106,13 @@ class InitHelperTest {
             double[][] lambda, double[][] weight, int numEdges) {
         int numVert = neighborsSet.size();
 
-        double[] vecSingular = new double[numVert];
+        double[] vecUnity = new double[numVert];
 
         for (int i = 0; i < numVert; i++) {
-            vecSingular[i] = 1.0;
+            vecUnity[i] = 1.0;
         }
 
-        InitHelper.vecSingular = vecSingular;
+        InitHelper.vecUnity = vecUnity;
 
         int[] myNodeDegrees = InitHelper.calcNodeDegrees(neighborsSet);
         double[][] myNegPassProbs = InitHelper.calcNegPassProbs(neighborsSet, myNodeDegrees);
@@ -133,13 +133,13 @@ class InitHelperTest {
             double[][] lambda, double[][] weight, int numEdges) {
         int numVert = neighborsSet.size();
 
-        double[] vecSingular = new double[numVert];
+        double[] vecUnity = new double[numVert];
 
         for (int i = 0; i < numVert; i++) {
-            vecSingular[i] = 1.0;
+            vecUnity[i] = 1.0;
         }
 
-        InitHelper.vecSingular = vecSingular;
+        InitHelper.vecUnity = vecUnity;
         int[] myNodeDegrees = InitHelper.calcNodeDegrees(neighborsSet);
         double[][] myNegPassProbs = InitHelper.calcNegPassProbs(neighborsSet, myNodeDegrees);
         double[][] myPassTime = InitHelper.calcPassTime(myNegPassProbs);

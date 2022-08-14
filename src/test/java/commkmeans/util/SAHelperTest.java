@@ -1,6 +1,5 @@
 package commkmeans.util;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -10,7 +9,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static commkmeans.util.Constants.EPSILON;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SAHelperTest {
     static Stream<Arguments> values() {
@@ -212,6 +212,16 @@ class SAHelperTest {
         neighborsSet1.put(9, Stream.of(6, 8, 10).collect(Collectors.toSet()));
         neighborsSet1.put(10, Stream.of(6, 9).collect(Collectors.toSet()));
 
+        int numVert1 = neighborsSet1.size();
+
+        double[] vecUnity1 = new double[numVert1];
+
+        for (int i = 0; i < numVert1; i++) {
+            vecUnity1[i] = 1.0;
+        }
+
+        InitHelper.vecUnity = vecUnity1;
+
         int numEdge1 = 34;
         int[] nodeDegrees1 = InitHelper.calcNodeDegrees(neighborsSet1);
         double[][] negPassProbs1 = InitHelper.calcNegPassProbs(neighborsSet1, nodeDegrees1);
@@ -256,6 +266,16 @@ class SAHelperTest {
         neighborsSet2.put(16, Stream.of(5, 15, 17, 18).collect(Collectors.toSet()));
         neighborsSet2.put(17, Stream.of(15, 16, 18).collect(Collectors.toSet()));
         neighborsSet2.put(18, Stream.of(4, 16, 17).collect(Collectors.toSet()));
+
+        int numVert2 = neighborsSet2.size();
+
+        double[] vecUnity2 = new double[numVert2];
+
+        for (int i = 0; i < numVert1; i++) {
+            vecUnity2[i] = 1.0;
+        }
+
+        InitHelper.vecUnity = vecUnity2;
 
         int numEdge2 = 62;
         int[] nodeDegree2 = InitHelper.calcNodeDegrees(neighborsSet2);
