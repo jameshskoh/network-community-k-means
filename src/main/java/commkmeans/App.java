@@ -5,6 +5,7 @@ import commkmeans.graph.Graph;
 import commkmeans.util.GraphLoader;
 import commkmeans.util.Parameters;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class App {
@@ -14,6 +15,7 @@ public class App {
     public static void main(String[] args) {
         boolean noCache = false;
         boolean cacheOnly = false;
+        String inputFileName = null;
 
         for (String arg : args) {
             if (NO_CACHE.equalsIgnoreCase(arg)) {
@@ -22,23 +24,27 @@ public class App {
             } else if (CACHE_ONLY.equalsIgnoreCase(arg)) {
                 cacheOnly = true;
                 System.out.println("Running cache-only mode, cache will be regenerated.");
+            } else if (arg.endsWith(".edge")) {
+                inputFileName = arg;
             }
         }
 
-        System.out.println(BLAS.getInstance().getClass().getName());
-
-        System.out.println("Please enter your .edge file.");
-        Scanner sc = new Scanner(System.in);
-        String fileName = sc.nextLine();
-        sc.close();
+        if (inputFileName == null) {
+            System.out.println(BLAS.getInstance().getClass().getName());
+            System.out.println("Please enter your .edge file.");
+            Scanner sc = new Scanner(System.in);
+            inputFileName = sc.nextLine();
+            sc.close();
+        }
 
         // Initializing data
         long startTime = System.nanoTime();
-        String cacheName = fileName + ".cache";
+        String cacheName = inputFileName + ".cache";
+        String exportFileName = inputFileName + ".result";
         Graph g = new Graph();
 
         try {
-            GraphLoader.loadGraph(g, fileName);
+            GraphLoader.loadGraph(g, inputFileName);
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -71,5 +77,13 @@ public class App {
         System.out.println(msg1);
         System.out.println(msg2);
 
+        // Export solution
+        try {
+            s.exportSolution(exportFileName, timeInitialize - startTime, timeFinish - timeInitialize);
+            String msg = String.format("Result exported successfully! File path: %s", exportFileName);
+            System.out.println(msg);
+        } catch (IOException e) {
+            System.out.println("Result export failed!");
+        }
     }
 }
