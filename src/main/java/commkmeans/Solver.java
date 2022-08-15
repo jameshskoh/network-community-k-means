@@ -97,7 +97,9 @@ public class Solver {
 
         Solution s = new Solution();
 
-        int N = random.nextInt(param.N_max - param.N_min + 1) + param.N_min;
+        int randomUpperBound = (int)Math.min(Math.sqrt(numVertex/5.0), param.N_max) + 3;
+
+        int N = random.nextInt(randomUpperBound - param.N_min + 1) + param.N_min;
 
         Map<Integer, Set<Integer>> randomSets = SAHelper.calcRandomSets(N, numVertex, random);
         randomSets = SAHelper.calcRecenter(randomSets, lambda);
