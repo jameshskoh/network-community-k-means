@@ -50,14 +50,17 @@ public class App {
             return;
         }
 
-        double T_max = 0.2;
-        double T_min = 0.002;
+        String configFileName = "config.properties";
         int N_max = g.getNumVertex() / 3;
         int N_min = 2;
-        double alpha = 0.99;
-        int R = 25;
 
-        Parameters param = new Parameters(T_max, T_min, N_max, N_min, alpha, R);
+        Parameters param = null;
+        try {
+            param = new Parameters(configFileName, N_max, N_min);
+        } catch (IOException e) {
+            System.out.println("Configuration not found, fallback to default settings.");
+            param = new Parameters(0.2, 0.002, N_max, N_min, 0.99, 25);
+        }
         Solver sv = new Solver(g, param, cacheName, noCache, cacheOnly);
 
         long timeInitialize = System.nanoTime();
