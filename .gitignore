@@ -3,6 +3,7 @@
 
 # Custom
 *.edge.cache
+*.edge.result
 
 # User-specific stuff
 .idea/**/workspace.xml
