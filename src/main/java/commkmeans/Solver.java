@@ -1,11 +1,11 @@
 package commkmeans;
 
+import commkmeans.exceptions.InvalidFormatException;
 import commkmeans.graph.Graph;
-import commkmeans.util.InitHelper;
-import commkmeans.util.Parameters;
-import commkmeans.util.PerturbHelper;
-import commkmeans.util.SAHelper;
+import commkmeans.util.*;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -26,7 +26,8 @@ public class Solver {
     // For modularity
     private final double[][] expWeight;
 
-    public Solver(Graph g, Parameters param) {
+    public Solver(Graph g, Parameters param, String cacheName, boolean noCache, boolean cacheOnly) {
+        double[][] cache;
         System.out.println("Initializing solver...");
 
         neighborSets = g.exportGraph();
@@ -48,8 +49,33 @@ public class Solver {
         for (int i = 0; i < numVertex; i++) vecUnity[i] = 1.0;
         InitHelper.vecUnity = vecUnity;
 
-        passTime = InitHelper.calcPassTime(negPassProbs);
-        System.out.println("First passage time: done");
+        if (noCache || cacheOnly) {
+            cache = computeAndWriteCache(negPassProbs, cacheName);
+        } else {
+            try {
+                cache = readCache(cacheName, numVertex);
+            } catch (FileNotFoundException e) {
+                System.out.println("Cache missing or unreadable!");
+                System.out.println("Fall back to cache generation.");
+                cache = computeAndWriteCache(negPassProbs, cacheName);
+            } catch (InvalidFormatException e) {
+                System.out.println("Cache is corrupted!");
+                System.out.println("Fall back to cache generation.");
+                cache = computeAndWriteCache(negPassProbs, cacheName);
+            }
+        }
+
+        passTime = cache;
+
+        if (cacheOnly) {
+            System.out.println("Cache generation complete. Exiting program.");
+            lambda = null;
+            expWeight = null;
+            random = null;
+            this.param = param;
+
+            return;
+        }
 
         lambda = InitHelper.calcLambda(passTime);
         System.out.println("Dissimilarity index: done");
@@ -118,5 +144,34 @@ public class Solver {
         System.out.println("\nDone!\n");
 
         return s;
+    }
+
+    private double[][] readCache(String cacheName, int numVert) throws FileNotFoundException, InvalidFormatException {
+        System.out.println("Attempt to read cache.");
+        double[][] cache = CacheHelper.readPassTimeCache(cacheName, numVert);
+        System.out.println("Cache read");
+
+        return cache;
+    }
+
+    private double[][] computeAndWriteCache(double[][] negPassProbs, String cacheName) {
+        System.out.println("Computing cache.");
+        double[][] cache = InitHelper.calcPassTime(negPassProbs);
+        System.out.println("Cache computed.");
+
+        writeCache(cacheName, cache);
+
+        return cache;
+    }
+
+    private void writeCache(String cacheName, double[][] cache) {
+        System.out.println("Attempt to write cache.\n");
+
+        try {
+            CacheHelper.writePassTimeCache(cacheName, cache);
+            System.out.println("Cache written.\n");
+        } catch (IOException e) {
+            System.out.println("Cache writing failed! Please check your file permissions.");
+        }
     }
 }
