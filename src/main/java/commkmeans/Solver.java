@@ -94,32 +94,43 @@ public class Solver {
 
     public Solution solve() {
         System.out.println("Initializing solving procedure...");
+        System.out.println("Parallelization: " + param.parallel);
 
-        Solution s = new Solution();
+        int maxIter = (int)(-Math.log(param.T_max / param.T_min) / Math.log(param.alpha) * param.R) + 50;
+        Solution s = new Solution(maxIter);
 
         int randomUpperBound = (int)Math.min(Math.sqrt(numVertex/5.0), param.N_max) + 3;
 
         int N = random.nextInt(randomUpperBound - param.N_min + 1) + param.N_min;
 
         Map<Integer, Set<Integer>> randomSets = SAHelper.calcRandomSets(N, numVertex, random);
-        randomSets = SAHelper.calcRecenter(randomSets, lambda);
-        s.optCommSets = randomSets;
-        s.optObj = SAHelper.calcEnergy(randomSets, neighborSets, expWeight, numEdge);
+        Map<Integer, Set<Integer>> currCommSets = SAHelper.calcRecenter(randomSets, lambda);
+        s.optCommSets = currCommSets;
+        s.optObj = SAHelper.calcEnergy(randomSets, neighborSets, expWeight, numEdge, param.parallel);
 
-        Map<Integer, Set<Integer>> currCommSets = randomSets;
         double currObj = s.optObj;
 
         double T = param.T_max;
+
+        int totalIter = 0;
         while (T >= param.T_min) {
-            String msg = String.format("Current temperature: %.5f", T);
+            String msg = String.format("Current temperature: %.5f\tCurr obj: %.5f\tBest obj: %.5f", T, -currObj, -s.optObj);
             System.out.println(msg);
+
+            currCommSets = s.optCommSets;
+            currObj = s.optObj;
 
             int iter = 0;
 
             while (iter < param.R) {
+                Map<Integer, Set<Integer>> prevCommSets = currCommSets;
+                double prevObj = currObj;
+
                 currCommSets = PerturbHelper.perturb(currCommSets, neighborSets, lambda, param, random);
                 currCommSets = SAHelper.calcRecenter(currCommSets, lambda);
-                currObj = SAHelper.calcEnergy(currCommSets, neighborSets, expWeight, numEdge);
+                currObj = SAHelper.calcEnergy(currCommSets, neighborSets, expWeight, numEdge, param.parallel);
+
+                s.objHistogram[totalIter] = currObj;
 
                 if (currObj <= s.optObj) {
                     s.optCommSets = currCommSets;
@@ -127,16 +138,16 @@ public class Solver {
                 } else {
                     double prob = random.nextDouble();
 
-                    double eval = Math.exp((currObj - s.optObj) / T);
+                    double eval = Math.exp((prevObj - currObj) / T);
 
-                    // #TODO
-                    if (!(prob < eval)) {
+                    if (prob > eval) {
                         // bad luck, revert to previous solution
-                        currCommSets = s.optCommSets;
-                        currObj = s.optObj;
+                        currCommSets = prevCommSets;
+                        currObj = prevObj;
                     }
                 }
 
+                totalIter++;
                 iter++;
             }
 
