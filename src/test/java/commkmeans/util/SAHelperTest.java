@@ -180,7 +180,18 @@ class SAHelperTest {
             int randomSeed, int numSet, int numVert, int numEdge, double[][] lambda, double[][] expWeight,
             Map<Integer, Set<Integer>> neighborsSet, Map<Integer, Set<Integer>> randomSets,
             Map<Integer, Set<Integer>> recenteredSets, double energy) {
-        double myEnergy = SAHelper.calcEnergy(randomSets, neighborsSet, expWeight, numEdge);
+        double myEnergy = SAHelper.calcEnergy(randomSets, neighborsSet, expWeight, numEdge, false);
+
+        assertEquals(energy, myEnergy, EPSILON);
+    }
+
+    @ParameterizedTest
+    @MethodSource("values")
+    void calcEnergyParallel_shouldGiveCorrectEnergy(
+            int randomSeed, int numSet, int numVert, int numEdge, double[][] lambda, double[][] expWeight,
+            Map<Integer, Set<Integer>> neighborsSet, Map<Integer, Set<Integer>> randomSets,
+            Map<Integer, Set<Integer>> recenteredSets, double energy) {
+        double myEnergy = SAHelper.calcEnergy(randomSets, neighborsSet, expWeight, numEdge, true);
 
         assertEquals(energy, myEnergy, EPSILON);
     }

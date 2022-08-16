@@ -11,6 +11,7 @@ public class Parameters {
     public final double alpha;
     public final int R;
     public final int seed;
+    public final boolean parallel;
 
     public Parameters(String propFileName, int N_max, int N_min) throws IOException {
         File file = new File(propFileName);
@@ -23,6 +24,7 @@ public class Parameters {
         double alpha = Double.parseDouble(p.getProperty("ALPHA"));
         int R = Integer.parseInt(p.getProperty("R"));
         int seed = Integer.parseInt(p.getProperty("SEED"));
+        boolean parallel = Boolean.parseBoolean(p.getProperty("PARALLEL"));
 
         checkData(T_max, T_min, N_max, N_min, alpha, R);
 
@@ -33,6 +35,7 @@ public class Parameters {
         this.alpha = alpha;
         this.R = R;
         this.seed = seed;
+        this.parallel = parallel;
     }
 
     public Parameters(
@@ -53,6 +56,7 @@ public class Parameters {
         this.alpha = alpha;
         this.R = R;
         this.seed = seed;
+        this.parallel = false;
     }
 
     private void checkData(double T_max, double T_min, int N_max, int N_min,

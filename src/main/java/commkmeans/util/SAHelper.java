@@ -1,6 +1,7 @@
 package commkmeans.util;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class SAHelper {
     // generate random sets
@@ -75,20 +76,36 @@ public class SAHelper {
     // calculate modularity given set information
     public static double calcEnergy(
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets,
-            double[][] expWeight, int numEdges) {
+            double[][] expWeight, int numEdges, boolean parallel) {
         double sum = 0;
 
-        for (Set<Integer> commSet : commSets.values()) {
-            for (int node : commSet) {
-                Set<Integer> neighbors = neighborSets.get(node);
-
-                for (int friend : commSet) {
-                    sum += neighbors.contains(friend) ? 1.0 : 0.0;
-                    sum -= expWeight[node][friend];
-                }
+        if (parallel) {
+            Stream<Set<Integer>> commSetStream = commSets.values().parallelStream();
+            sum += commSetStream.mapToDouble(
+                    commSet -> calcEnergyIter(commSet, neighborSets, expWeight)).sum();
+        } else {
+            for (Set<Integer> commSet : commSets.values()) {
+                sum += calcEnergyIter(commSet, neighborSets, expWeight);
             }
         }
 
         return -sum / (2.0 * numEdges);
+    }
+
+    private static double calcEnergyIter(
+            Set<Integer> commSet, Map<Integer, Set<Integer>> neighborSets,
+            double[][] expWeight) {
+        double subTotal = 0;
+
+        for (int node : commSet) {
+            Set<Integer> neighbors = neighborSets.get(node);
+
+            for (int friend : commSet) {
+                subTotal += neighbors.contains(friend) ? 1.0 : 0.0;
+                subTotal -= expWeight[node][friend];
+            }
+        }
+
+        return subTotal;
     }
 }
