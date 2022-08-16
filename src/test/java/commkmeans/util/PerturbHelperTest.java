@@ -103,7 +103,7 @@ class PerturbHelperTest {
             Map<Integer, Set<Integer>> neighborsSet, List<Integer> centers,
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> newCommSets,
             double[][] lambda, int randomSeed) {
-        Map<Integer, Set<Integer>> myCommSets = PerturbHelper.deleteCenter(commSets, neighborsSet, lambda);
+        Map<Integer, Set<Integer>> myCommSets = PerturbHelper.deleteCenter(commSets, neighborsSet, lambda, new Random(randomSeed));
 
         assertEquals(commSets.size() - 1, myCommSets.size());
 
@@ -116,7 +116,7 @@ class PerturbHelperTest {
             Map<Integer, Set<Integer>> neighborsSet, List<Integer> centers,
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> newCommSets,
             double[][] lambda, int randomSeed) {
-        Map<Integer, Set<Integer>> myCommSets = PerturbHelper.addCenter(commSets, neighborsSet, lambda);
+        Map<Integer, Set<Integer>> myCommSets = PerturbHelper.addCenter(commSets, neighborsSet, lambda, new Random(randomSeed));
 
         assertEquals(commSets.size() + 1, myCommSets.size());
 

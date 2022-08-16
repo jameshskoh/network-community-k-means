@@ -11,17 +11,17 @@ public class PerturbHelper {
         if (result == 0) {
             return keepCenter(commSets, neighborSets, lambda);
         } else if (result == 1) {
-            if (commSets.size() == param.N_min) {
+            if (commSets.size() <= param.N_min) {
                 return keepCenter(commSets, neighborSets, lambda);
             }
 
-            return deleteCenter(commSets, neighborSets, lambda);
+            return deleteCenter(commSets, neighborSets, lambda, random);
         } else {
-            if (commSets.size() == param.N_max) {
+            if (commSets.size() >= param.N_max) {
                 return keepCenter(commSets, neighborSets, lambda);
             }
 
-            return addCenter(commSets, neighborSets, lambda);
+            return addCenter(commSets, neighborSets, lambda, random);
         }
     }
 
@@ -35,8 +35,19 @@ public class PerturbHelper {
 
     public static Map<Integer, Set<Integer>> deleteCenter(
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets,
-            double[][] lambda) {
-        int weakestComm = calcWeakestComm(commSets, neighborSets);
+            double[][] lambda, Random random) {
+        int[] weakestComms = calcWeakestComm(commSets, neighborSets);
+        int weakestComm = 0;
+
+        int prob = random.nextInt(linearSum(weakestComms.length));
+
+        if (prob < 1) {
+            weakestComm = weakestComms[0];
+        } else if (prob < 3) {
+            weakestComm = weakestComms[1];
+        } else {
+            weakestComm = weakestComms[2];
+        }
 
         List<Integer> centers = new ArrayList<>();
 
@@ -50,8 +61,20 @@ public class PerturbHelper {
 
     public static Map<Integer, Set<Integer>> addCenter(
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets,
-            double[][] lambda) {
-        int weakestComm = calcWeakestAvgComm(commSets, neighborSets);
+            double[][] lambda, Random random) {
+        int[] weakestComms = calcWeakestAvgComm(commSets, neighborSets);
+        int weakestComm = 0;
+
+        int prob = random.nextInt(linearSum(weakestComms.length));
+
+        if (prob < 1) {
+            weakestComm = weakestComms[0];
+        } else if (prob < 3) {
+            weakestComm = weakestComms[1];
+        } else {
+            weakestComm = weakestComms[2];
+        }
+
 
         double minDiss = Double.POSITIVE_INFINITY;
         int newC = 0;
@@ -76,42 +99,88 @@ public class PerturbHelper {
         return clusterNodes(centers, lambda);
     }
 
-    private static int calcWeakestComm(
+    private static int[] calcWeakestComm(
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets) {
         if (commSets.isEmpty()) {
             throw new IllegalArgumentException("This is crazy.");
         }
 
         int weakest = 0;
+        int secWeakest = 0;
+        int thirdWeakest = 0;
         double minStr = Double.POSITIVE_INFINITY;
+        double secMinStr = Double.POSITIVE_INFINITY;
+        double thirdMinStr = Double.POSITIVE_INFINITY;
 
         for (int c : commSets.keySet()) {
             double str = calcCommStr(commSets.get(c), neighborSets);
 
             if (str < minStr) {
+                thirdMinStr = secMinStr;
+                thirdWeakest = secWeakest;
+
+                secMinStr = minStr;
+                secWeakest = weakest;
+
                 minStr = str;
                 weakest = c;
+            } else if (str < secMinStr) {
+                thirdMinStr = secMinStr;
+                thirdWeakest = secWeakest;
+
+                secMinStr = str;
+                secWeakest = c;
+            } else if (str < thirdMinStr) {
+                thirdMinStr = str;
+                thirdWeakest = c;
             }
         }
 
-        return weakest;
+        if (commSets.size() > 2) {
+            return new int[]{weakest, secWeakest, thirdWeakest};
+        } else {
+            return new int[]{weakest, secWeakest};
+        }
     }
 
-    private static int calcWeakestAvgComm(
+    private static int[] calcWeakestAvgComm(
             Map<Integer, Set<Integer>> commSets, Map<Integer, Set<Integer>> neighborSets) {
         int weakest = 0;
+        int secWeakest = 0;
+        int thirdWeakest = 0;
         double minAvgStr = Double.POSITIVE_INFINITY;
+        double secMinAvgStr = Double.POSITIVE_INFINITY;
+        double thirdMinAvgStr = Double.POSITIVE_INFINITY;
 
         for (int c : commSets.keySet()) {
             double avgStr = calcCommStr(commSets.get(c), neighborSets) / commSets.get(c).size();
 
-            if (avgStr < minAvgStr) {
+            if (avgStr < minAvgStr || (avgStr == minAvgStr && c != weakest)) {
+                thirdMinAvgStr = secMinAvgStr;
+                thirdWeakest = secWeakest;
+
+                secMinAvgStr = minAvgStr;
+                secWeakest = weakest;
+
                 minAvgStr = avgStr;
                 weakest = c;
+            } else if (avgStr < secMinAvgStr || (avgStr == secMinAvgStr && c != secWeakest)) {
+                thirdMinAvgStr = secMinAvgStr;
+                thirdWeakest = secWeakest;
+
+                secMinAvgStr = avgStr;
+                secWeakest = c;
+            } else if (avgStr < thirdMinAvgStr || (avgStr == thirdMinAvgStr && c != thirdWeakest)) {
+                thirdMinAvgStr = avgStr;
+                thirdWeakest = c;
             }
         }
 
-        return weakest;
+        if (commSets.size() > 2) {
+            return new int[]{weakest, secWeakest, thirdWeakest};
+        } else {
+            return new int[]{weakest, secWeakest};
+        }
     }
 
     private static double calcCommStr(
@@ -151,6 +220,14 @@ public class PerturbHelper {
             set.add(node);
         }
 
+        Iterator<Integer> it = commSets.keySet().iterator();
+
+        while (it.hasNext()) {
+            int c = it.next();
+
+            if (commSets.get(c).isEmpty()) it.remove();
+        }
+
         return commSets;
     }
 
@@ -160,8 +237,7 @@ public class PerturbHelper {
         int minCenter = -1;
 
         if (centers.isEmpty()) {
-            String msg = String.format("Center set cannot be empty!");
-            throw new IllegalArgumentException(msg);
+            throw new IllegalArgumentException("Center set cannot be empty!");
         }
 
         for (int c : centers) {
@@ -174,5 +250,9 @@ public class PerturbHelper {
         }
 
         return minCenter;
+    }
+
+    private static int linearSum(int num) {
+        return num * (num + 1) / 2;
     }
 }
