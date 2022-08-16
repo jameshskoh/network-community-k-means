@@ -8,6 +8,13 @@ import java.util.Set;
 public class Solution {
     public double optObj;
     public Map<Integer, Set<Integer>> optCommSets;
+    public double[] objHistogram;
+    public long initTime;
+    public long finishTime;
+
+    public Solution(int numIter) {
+        objHistogram = new double[numIter];
+    }
 
     public void printSolution() {
         System.out.println("Solution:\n");
@@ -29,8 +36,13 @@ public class Solution {
 
             int count = 1;
             for (int node : optCommSets.get(center)) {
-                String msg4 = String.format("%d\t", node);
-                System.out.print(msg4);
+                if (node < 1000) {
+                    String msg4 = String.format("%d\t\t", node);
+                    System.out.print(msg4);
+                } else {
+                    String msg4 = String.format("%d\t", node);
+                    System.out.print(msg4);
+                }
 
                 if (count % 12 == 0) System.out.println();
 
@@ -85,6 +97,17 @@ public class Solution {
             fw.write(System.lineSeparator());
 
             commIndex++;
+        }
+
+        fw.write("Solution histogram: ");
+        fw.write(System.lineSeparator());
+
+        int i = 0;
+        while (i < objHistogram.length && objHistogram[i] != 0.0) {
+            msg = String.format("%.5f\t", -objHistogram[i]);
+            fw.write(msg);
+            fw.write(System.lineSeparator());
+            i++;
         }
 
         fw.close();
